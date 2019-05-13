@@ -218,35 +218,29 @@ func scanTokens(data []byte, filename string, start hcl.Pos, mode scanMode) []To
         TemplateInterp = "${" ("~")?;
         TemplateControl = "%{" ("~")?;
         EndStringTmpl = '"';
-        NewlineChars = ("\r"|"\n");
-        NewlineCharsSeq = NewlineChars+;
-        StringLiteralChars = (AnyUTF8 - NewlineChars);
-        TemplateIgnoredNonBrace = (^'{' %{ fhold; });
-        TemplateNotInterp = '$' (TemplateIgnoredNonBrace | TemplateInterp);
-        TemplateNotControl = '%' (TemplateIgnoredNonBrace | TemplateControl);
-        QuotedStringLiteralWithEsc = ('\\' StringLiteralChars) | (StringLiteralChars - ("$" | '%' | '"' | "\\"));
+        StringLiteralChars = (AnyUTF8 - ("\r"|"\n"));
         TemplateStringLiteral = (
-            (TemplateNotInterp) |
-            (TemplateNotControl) |
-            (QuotedStringLiteralWithEsc)+
-        );
+            ('$' ^'{' %{ fhold; }) |
+            ('%' ^'{' %{ fhold; }) |
+            ('\\' StringLiteralChars) |
+            (StringLiteralChars - ("$" | '%' | '"'))
+        )+;
         HeredocStringLiteral = (
-            (TemplateNotInterp) |
-            (TemplateNotControl) |
-            (StringLiteralChars - ("$" | '%'))*
-        );
+            ('$' ^'{' %{ fhold; }) |
+            ('%' ^'{' %{ fhold; }) |
+            (StringLiteralChars - ("$" | '%'))
+        )*;
         BareStringLiteral = (
-            (TemplateNotInterp) |
-            (TemplateNotControl) |
-            (StringLiteralChars - ("$" | '%'))*
-        ) Newline?;
+            ('$' ^'{') |
+            ('%' ^'{') |
+            (StringLiteralChars - ("$" | '%'))
+        )* Newline?;
 
         stringTemplate := |*
             TemplateInterp        => beginTemplateInterp;
             TemplateControl       => beginTemplateControl;
             EndStringTmpl         => endStringTemplate;
             TemplateStringLiteral => { token(TokenQuotedLit); };
-            NewlineCharsSeq       => { token(TokenQuotedNewline); };
             AnyUTF8               => { token(TokenInvalid); };
             BrokenUTF8            => { token(TokenBadUTF8); };
         *|;

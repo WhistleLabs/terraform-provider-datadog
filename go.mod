@@ -28,7 +28,4 @@ require (
 	github.com/terraform-providers/terraform-provider-template v1.0.0 // indirect
 	github.com/terraform-providers/terraform-provider-tls v1.2.0 // indirect
 	github.com/zorkian/go-datadog-api v2.20.1-0.20190513084440-9d8b2d52bc3d+incompatible
-	gopkg.in/vmihailenco/msgpack.v2 v2.9.1 // indirect
-	labix.org/v2/mgo v0.0.0-20140701140051-000000000287 // indirect
-	launchpad.net/gocheck v0.0.0-20140225173054-000000000087 // indirect
 )
